@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cold Chain - Tableau de bord</title>
+<style>
+  body { font-family: sans-serif; background: #f4f6f8; margin: 0; padding: 24px; color: #1f2933; }
+  h1 { text-align: center; }
+  .cards { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .card { background: #fff; border-radius: 12px; padding: 24px; min-width: 200px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+  .card.alert { background: #fde8e8; color: #b42318; }
+  .value { font-size: 2.5rem; font-weight: bold; }
+  .label { color: #52606d; }
+  .card.alert .label { color: #b42318; }
+</style>
+</head>
+<body>
+<h1>Cold Chain - Surveillance DHT11</h1>
+<div class="cards">
+  <div class="card" id="card-temp">
+    <div class="label">Température</div>
+    <div class="value" id="temp">--</div>
+  </div>
+  <div class="card">
+    <div class="label">Humidité</div>
+    <div class="value" id="hum">--</div>
+  </div>
+  <div class="card">
+    <div class="label">Dernière mesure</div>
+    <div class="value" id="elapsed">--</div>
+  </div>
+</div>
+
+<script>
+const SEUIL = 25;
+let lastDate = null;
+
+async function refresh() {
+  try {
+    const res = await fetch("/api/latest/");
+    const json = await res.json();
+    const d = json.data;
+    if (!d) return;
+    if (d.temp !== null) {
+      document.getElementById("temp").textContent = d.temp.toFixed(1) + " °C";
+      document.getElementById("card-temp").classList.toggle("alert", d.temp > SEUIL);
+    }
+    if (d.hum !== null) {
+      document.getElementById("hum").textContent = d.hum.toFixed(1) + " %";
+    }
+    lastDate = new Date(d.dt);
+  } catch (e) {
+    console.error("Erreur API", e);
+  }
+}
+
+function updateElapsed() {
+  if (!lastDate) return;
+  const s = Math.floor((Date.now() - lastDate) / 1000);
+  document.getElementById("elapsed").textContent =
+    s < 60 ? "il y a " + s + " s" : "il y a " + Math.floor(s / 60) + " min";
+}
+
+refresh();
+setInterval(refresh, 5000);
+setInterval(updateElapsed, 1000);
+</script>
+</body>
+</html>
