@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -135,5 +138,6 @@ MAILERS = {
 }
 
 DEFAULT_FROM_EMAIL = "echchadlihajar@gmail.com"
-TELEGRAM_TOKEN = "9116605932:AAHjOIJNuJ2W7CW9Kobn99O_a_ocRJueHAw"
+
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = "5154751101"
