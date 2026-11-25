@@ -39,8 +39,20 @@ let lastDate = null;
 async function refresh() {
   try {
     const res = await fetch("/api/latest/");
-    const json = await res.json();
-    const d = json.data;
+
+if (!res.ok) {
+    throw new Error("Erreur HTTP : " + res.status);
+}
+
+const json = await res.json();
+const d = json.data;
+
+if (!d) {
+    document.getElementById("temp").textContent = "Aucune donnée";
+    document.getElementById("hum").textContent = "--";
+    document.getElementById("elapsed").textContent = "--";
+    return;
+}
     if (!d) return;
     if (d.temp !== null) {
       document.getElementById("temp").textContent = d.temp.toFixed(1) + " °C";
